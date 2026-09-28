@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+uv.lock
+dist/
+# Real class data must never be in this repository. Keep class directories elsewhere;
+# these patterns catch the usual accidents.
+*-20[0-9][0-9]/
+classes/
+roster.csv
+!klassikassa/examples/demo-class/roster.csv
+decisions.csv
+reminders.csv
+advances.csv
+manual.csv
+drafts/
+statements/
+!klassikassa/examples/demo-class/statements/

@@ -1,0 +1,15 @@
+Hello{greeting},
+
+{opening}
+
+{lines}
+Total: {total}
+
+Recipient: {holder}
+Account: {iban}
+Reference number: {ref}  ({kid_gen}'s own number, so the payment lands in the right place)
+
+If you have already paid, apologies, and please let me know so I can check. If the amount is difficult right now, write to me directly; we will find a way and it stays between us.
+
+Thank you!
+{signature}

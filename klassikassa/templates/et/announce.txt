@@ -1,0 +1,17 @@
+Tere kõigile!
+
+{cls} klassil on tulemas uued kulud, seega kogume taas klassiraha ({label}).
+
+Mis on teada:
+{lines}
+Palun kandke lapse kohta {amount} hiljemalt {due}.
+Konto jääk on praegu {balance}.
+
+Makse saaja: {holder}
+Konto: {iban}
+Selgitus: {purpose}, lapse nimi
+
+Võib maksta ka mitmes osas. Kui summa on praegu ebamugav, kirjutage mulle otse, leiame lahenduse ja see jääb meie vahele.
+
+Tervitades
+{signature}

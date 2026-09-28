@@ -1,0 +1,39 @@
+# Example class. `klassikassa.py init DIR` copies this; edit the copy, not this file.
+# All names below are invented.
+
+[class]
+name = "10C"
+school_year = "2026/27"
+treasurer = "Kati Pärn"
+signature = "Kati (Liisi ema, klassi laekur)"
+account_holder = "Kati Pärn"
+account_iban = "EE000000000000000000"   # the dedicated class account, not a personal one
+ref_prefix = "1026"                     # 4 digits; kid 07 gets reference 102607 + check digit
+start = "2026-09-01"                    # ignore statement rows before this date
+parents_list = "vanemad-10c@example.com" # where announce drafts are addressed
+transparency = "private"                # "private": each family sees only its own status
+                                        # "open": the class agreed to a shared payment table
+language = "et"                         # message templates: "et" or "en"
+# opening_balance = 0.00                # money carried over from last year, if any
+
+[reminders]
+first_after_days = 3      # grace period after the due date
+repeat_every_days = 10    # never more often than this per family
+max_reminders = 3         # after that, stop writing and talk in person
+
+[[collection]]
+id = "klassiraha-s1"
+label = "Klassiraha, I poolaasta"
+amount = 100.00
+due = "2026-10-15"
+applies = "all"
+exempt = []               # kid ids, e.g. a family covered by a stipend
+[collection.overrides]    # kid id = different amount
+"05" = 50.00
+
+[[collection]]
+id = "sarghaua"
+label = "Särghaua õppekäik 14.-15.10"
+amount = 45.00
+due = "2026-10-10"
+applies = ["01", "02", "03", "04", "06"]   # only those going

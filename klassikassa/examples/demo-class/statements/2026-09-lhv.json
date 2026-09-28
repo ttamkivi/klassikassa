@@ -1,0 +1,21 @@
+{"account": {"iban": "EE000000000000000000"},
+ "transactions": [
+  {"transactionId": "t1", "bookingDate": "2026-09-25", "amount": 100.00, "currency": "EUR", "direction": "CREDIT",
+   "description": "klassiraha", "referenceNumber": "1026017",
+   "paymentData": {"debtor": {"name": "LIISA KASK", "iban": "EE111"}}},
+  {"transactionId": "t2", "bookingDate": "2026-09-26", "amount": 145.00, "currency": "EUR", "direction": "CREDIT",
+   "description": "Jaan Tamm klassiraha + Särghaua", "referenceNumber": "",
+   "paymentData": {"debtor": {"name": "Tamm Holding OÜ", "iban": "EE222"}}},
+  {"transactionId": "t3", "bookingDate": "2026-09-27", "amount": 145.00, "currency": "EUR", "direction": "CREDIT",
+   "description": "Kaspar klassiraha ja õppekäik",
+   "paymentData": {"debtor": {"name": "Rein Mänd", "iban": "EE333"}}},
+  {"transactionId": "t4", "bookingDate": "2026-09-28", "amount": 50.00, "currency": "EUR", "direction": "CREDIT",
+   "description": "Karl",
+   "paymentData": {"debtor": {"name": "HELGI SAAR", "iban": "EE555"}}},
+  {"transactionId": "t5", "bookingDate": "2026-09-29", "amount": 20.00, "currency": "EUR", "direction": "CREDIT",
+   "description": "raha", "paymentData": {"debtor": {"name": "Tundmatu Isik", "iban": "EE999"}}},
+  {"transactionId": "t6", "bookingDate": "2026-10-02", "amount": 225.00, "currency": "EUR", "direction": "DEBIT",
+   "description": "Särghaua majutus 5 õpilast", "paymentData": {"creditor": {"name": "Särghaua Maamõis OÜ", "iban": "EE777"}}},
+  {"transactionId": "t7", "bookingDate": "2026-10-03", "amount": 18.40, "currency": "EUR", "direction": "DEBIT",
+   "description": "RIMI KAART", "paymentData": null}
+ ]}

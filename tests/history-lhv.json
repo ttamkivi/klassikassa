@@ -1,0 +1,10 @@
+{"transactions": [
+ {"transactionId":"h1","bookingDate":"2025-09-10","amount":30,"direction":"CREDIT","description":"Mari Kask 6.b teatriraha","paymentData":{"debtor":{"name":"LIISA KASK","iban":"EE111"}}},
+ {"transactionId":"h2","bookingDate":"2025-09-11","amount":30,"direction":"CREDIT","description":"teatriraha mari","paymentData":{"debtor":{"name":"Tõnu Kask","iban":"EE112"}}},
+ {"transactionId":"h3","bookingDate":"2025-09-12","amount":60,"direction":"CREDIT","description":"Kaspar ja Eva Mänd teater","paymentData":{"debtor":{"name":"Rein Mänd","iban":"EE333"}}},
+ {"transactionId":"h4","bookingDate":"2025-09-12","amount":30,"direction":"CREDIT","description":"Karl Saar 6b","paymentData":{"debtor":{"name":"HELGI SAAR","iban":"EE555"}}},
+ {"transactionId":"h5","bookingDate":"2025-09-13","amount":30,"direction":"CREDIT","description":"Jaan Tamm teatriraha","paymentData":{"debtor":{"name":"Tamm Holding OÜ","iban":"EE222"}}},
+ {"transactionId":"h6","bookingDate":"2026-03-02","amount":45,"direction":"CREDIT","description":"Jaan Tamm ekskursioon","paymentData":{"debtor":{"name":"Kadri Tamm","iban":"EE221"}}},
+ {"transactionId":"h7","bookingDate":"2025-09-14","amount":30,"direction":"CREDIT","description":"klassiraha","paymentData":{"debtor":{"name":"Marko Pärn","iban":"EE666"}}},
+ {"transactionId":"h8","bookingDate":"2025-09-15","amount":12,"direction":"DEBIT","description":"piletid","paymentData":{"creditor":{"name":"Teater OÜ","iban":"EE9"}}}
+]}

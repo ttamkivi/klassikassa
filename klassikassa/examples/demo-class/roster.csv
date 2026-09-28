@@ -1,0 +1,7 @@
+kid_id,kid_name,kid_genitive,parent1_name,parent1_email,parent1_phone,parent2_name,parent2_email,parent2_phone,payer_aliases,notes
+01,Mari Kask,Mari,Liisa Kask,liisa.kask@example.com,+37250000001,Tõnu Kask,tonu.kask@example.com,,,
+02,Jaan Tamm,Jaani,Kadri Tamm,kadri.tamm@example.com,+37250000002,,,,Tamm Holding OÜ,pays from company account
+03,Kaspar Mänd,Kaspari,Rein Mänd,rein.mand@example.com,,,,,,
+04,Eva Mänd,Eva,Rein Mänd,rein.mand@example.com,,,,,,twin of 03
+05,Karl Saar,Karli,Anu Saar,anu.saar@example.com,+37250000005,,,,Helgi Saar,grandmother pays
+06,Liis Pärn,Liisi,Marko Pärn,marko.parn@example.com,,Kati Pärn,kati.parn@example.com,,,

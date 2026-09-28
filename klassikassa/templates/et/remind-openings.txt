@@ -1,0 +1,3 @@
+Väike meeldetuletus {cls} klassiraha kohta. {kid_gen} eest on veel tasumata:
+Kirjutan uuesti {cls} klassiraha asjus. Minu andmetel on {kid_gen} eest veel tasumata:
+Viimane kirjalik meeldetuletus {cls} klassiraha kohta. {kid_gen} eest on tasumata:
