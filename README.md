@@ -40,32 +40,28 @@ Kõik arvutused tehakse koodis (Decimal + SQLite). Kui kasutad seda koos AI-assi
 teeb assistent ainult otsustamist vajavad asjad: kas see makse on selle lapse eest, kas
 see kiri on sobiv.
 
-## Paigaldus
+## Kuidas oma klassile kasutusele võtta
 
-```bash
-uv tool install git+https://github.com/ttamkivi/klassikassa
-```
+**Samm-sammult juhend: [docs/ALUSTAMINE.md](docs/ALUSTAMINE.md)** (English:
+[docs/GETTING-STARTED.md](docs/GETTING-STARTED.md)). Lühidalt:
 
-Repo on praegu privaatne: ligipääsu saab omanikult. Või koodist: `uv run python -m klassikassa --help`. Vajab Python 3.11+. Exceli failide
-lugemiseks: `uv tool install 'klassikassa[xlsx] @ git+...'`.
+1. **Tee endale koopia:** *Use this template → Private*, või *Code → Download ZIP*.
+   Ära kasuta *Fork*-i. Sinu koopia ei ole selle repositooriumiga seotud ja selle omanik
+   ei näe sinu andmeid.
+2. **Paigalda [uv](https://docs.astral.sh/uv/)** (käivitab programmi, Python tuleb ise kaasa).
+3. **Loo klassi kaust väljaspool koodi kausta:**
+   ```bash
+   uv run python -m klassikassa --dir ~/Dokumendid/klassikassa-andmed/3a-2026 init
+   ```
+4. Täida `config.toml` ja `roster.csv`, loe sisse pangaväljavõte (camt.053 XML või CSV),
+   ja `status` näitab, kes on maksnud.
 
-## Esimesed sammud
+Kui kontol on juba mitme aasta ajalugu, oskab tööriist sellest laste ja maksjate
+nimekirja ette pakkuda (`infer-roster`). Tulemus on ettepanek, mitte nimekiri; iga seos
+kinnitab inimene.
 
-```bash
-export KLASSIKASSA_DIR=~/klassikassa/7b-2026      # üks kaust klassi ja õppeaasta kohta
-klassikassa init                                  # näidisklass, mille üle kirjutad
-# muuda config.toml: klass, konto, kogumised; asenda roster.csv päris nimekirjaga
-klassikassa ingest ~/Downloads/valjavote.xml
-klassikassa review                                # mis vajab inimese otsust
-klassikassa status
-```
-
-Kui kontol on juba mitme aasta ajalugu, oskab tööriist sellest **laste ja maksjate
-nimekirja ette pakkuda**: `klassikassa infer-roster --stale 2025-09-01`. Tulemus on
-ettepanek (`roster.proposed.csv` + tõendid), mitte nimekiri; iga seos kinnitab inimene.
-
-Kõik käsud: `klassikassa --help`. Töö jaotus laekuri ja abi vahel:
-[docs/ROLES.md](docs/ROLES.md). AI-assistendiga kasutamiseks: [AGENT.md](AGENT.md).
+Töö jaotus laekuri ja abi vahel: [docs/ROLES.md](docs/ROLES.md). AI-assistendiga
+kasutamiseks: [AGENT.md](AGENT.md).
 
 ## Privaatsus lühidalt
 
