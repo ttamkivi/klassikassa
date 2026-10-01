@@ -390,6 +390,10 @@ def cmd_ingest(k: Kassa, args):
             rows = load_file(Path(f))
         except ValueError as e:
             sys.exit(str(e))
+        # a file already in statements/ is read on every load; copying it would only duplicate it
+        if Path(f).resolve().parent == dest.resolve():
+            print(f"{f}: {len(rows)} rows read, already in statements/")
+            continue
         name = dt.datetime.now().strftime("%Y%m%d-%H%M%S-") + Path(f).name
         shutil.copy(f, dest / name)
         print(f"{f}: {len(rows)} rows read, stored as statements/{name}")
@@ -407,18 +411,26 @@ def cmd_status(k: Kassa, args):
     print(f"{k.cls['name']}  ·  seis {as_of}  ·  {len(k.kids)} last\n")
     tot_due = Decimal(0)
     lines = []
+    n_done = n_open = n_late = 0
     for kid in sorted(k.kids):
         s = k.family_status(con, kid, as_of)
         tot_due += s["due_now"]
+        open_ = any(r["got"] < r["amount"] for r in s["rows"])
+        # ⚠ overdue · ✓ everything paid · "·" still open but not yet due
+        if s["due_now"] > 0:
+            flag, n_late = "⚠", n_late + 1
+        elif open_:
+            flag, n_open = "·", n_open + 1
+        else:
+            flag, n_done = "✓", n_done + 1
         cells = "  ".join(f"{r['collection']['id']}:{r['state']}" for r in s["rows"])
         rem = k.reminder_log(kid)
         remtxt = f"  meeldetuletusi {len(rem)}, viimane {rem[-1]['date']}" if rem else ""
         extra = f"  ülemakse {eur(s['credit'])}" if s["credit"] > 0 else ""
-        flag = "⚠" if s["due_now"] > 0 else "✓"
         lines.append(f"{flag} {kid:>3} {k.kids[kid]['kid_name']:<22} makstud {eur(s['paid']):>10}  "
                      f"võlg {eur(s['due_now']):>9}  {cells}{extra}{remtxt}")
     print("\n".join(lines))
-    print()
+    print(f"\n✓ kõik makstud {n_done}  ·  · tähtaeg ees {n_open}  ·  ⚠ tähtaeg möödas {n_late}")
     cmd_balance(k, args, con=con)
     print(f"Tähtaja ületanud võlg kokku: {eur(tot_due)}")
     (n_unm,) = con.execute("select count(*) from tx where state='unmatched'").fetchone()

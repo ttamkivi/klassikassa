@@ -228,3 +228,20 @@ def test_english_class_gets_english_reminders(demo):
     text = (demo / "drafts" / "2026-10-20" / "04.txt").read_text()
     assert "Subject: 10C class money: Eva" in text and "A small reminder" in text
     assert "tasumata" not in text and "tähtaeg" not in text
+
+
+def test_status_marks_not_yet_due_apart_from_paid(demo, capsys):
+    # before any due date nobody is late, but unpaid families must not look paid
+    run(demo, "status", today="2026-09-30")
+    out = capsys.readouterr().out
+    assert "⚠ tähtaeg möödas 0" in out
+    assert any(l.startswith("·") for l in out.splitlines())
+    run(demo, "status", today="2026-10-20")
+    assert "⚠ tähtaeg möödas 0" not in capsys.readouterr().out
+
+
+def test_ingest_file_already_in_statements_is_not_copied(demo, capsys):
+    f = demo / "statements" / "2026-09-lhv.json"
+    run(demo, "ingest", str(f))
+    assert "already in statements/" in capsys.readouterr().out
+    assert [p.name for p in (demo / "statements").iterdir()] == ["2026-09-lhv.json"]
