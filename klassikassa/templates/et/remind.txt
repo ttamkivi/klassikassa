@@ -8,7 +8,7 @@ Kokku: {total}
 Makse saaja: {holder}
 Konto: {iban}
 Viitenumber: {ref}  (see on {kid_gen} oma number, nii jõuab makse õigesse kohta ilma lisaküsimusteta)
-
+{paylink}
 Kui olete juba maksnud, siis vabandan ja andke palun teada, vaatan üle. Kui summa on praegu ebamugav, kirjutage mulle otse, leiame lahenduse ja see jääb meie vahele.
 
 Aitäh!

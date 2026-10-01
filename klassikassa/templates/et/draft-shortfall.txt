@@ -1,0 +1,10 @@
+Tere!
+
+{what} arve summas {cost} maksis {paid_by} esialgu ise ära, suur aitäh! Klassikontol on praegu {balance}, seega puudu on {short}. Jagame selle {kids} lapse peale: {per} lapse kohta.
+
+{pay}
+
+Kui summa on praegu ebamugav, kirjutage mulle otse, leiame lahenduse ja see jääb meie vahele.
+
+Aitäh!
+{signature}

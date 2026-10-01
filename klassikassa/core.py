@@ -287,6 +287,9 @@ class Kassa:
                     # paying a parent back for an advance: not a new expense (the advance was)
                     t["reimburse"] = d["value"]
                     t["activity"] = f"tagasimakse: {d['value']}"
+                elif d and d["action"] == "refund":
+                    # money sent back to a family (a double payment): lowers what that kid paid
+                    t["kid_id"], t["how"], t["activity"] = d["value"], "tagasikanne", "tagasikanne perele"
                 elif d and d["action"] == "spend":
                     t["activity"] = d["value"]
                     t["receipt"] = d.get("note", "")
@@ -336,8 +339,8 @@ class Kassa:
         return con
 
     def paid(self, con, kid) -> Decimal:
-        (c,) = con.execute("select coalesce(sum(cents),0) from tx where kid_id=? and cents>0 "
-                           "and state!='ignored'", (kid,)).fetchone()
+        (c,) = con.execute("select coalesce(sum(cents),0) from tx where kid_id=? and state!='ignored' "
+                           "and (cents>0 or how='tagasikanne')", (kid,)).fetchone()
         return D(Decimal(c) / 100)
 
     def family_status(self, con, kid: str, as_of: dt.date) -> dict:
@@ -486,6 +489,15 @@ def cmd_assign(k, args):
     _decide(k, args.txid, "assign", args.kid, args.note or "")
 
 
+def cmd_refund(k, args):
+    t = k.txs.get(args.txid)
+    if not t or t["amount"] >= 0:
+        sys.exit("refund takes an outgoing bank transaction (the transfer back to the family).")
+    if args.kid not in k.kids:
+        sys.exit(f"No kid {args.kid} in roster.")
+    _decide(k, args.txid, "refund", args.kid, args.note or "")
+
+
 def cmd_split(k, args):
     parts = dict(x.split("=") for x in args.parts)
     bad = [kid for kid in parts if kid not in k.kids]
@@ -528,11 +540,36 @@ WORDS = {"et": {"partly": " (osaliselt tasutud)", "due": "tähtaeg", "and": " ja
          "en": {"partly": " (partly paid)", "due": "due", "and": " and ", "subject": "class money"}}
 
 
+def payto_link(k: "Kassa", amount: Decimal | None, message: str) -> str:
+    """One-tap payment link (RFC 8905 payto://) with amount and description filled in.
+
+    Off unless config [class] payment_links = "payto": it opens a payment only where the
+    payer's bank app handles payto://, so it always goes next to the account details,
+    never instead of them. Test it from your own phone before parents see it.
+    """
+    if k.cls.get("payment_links", "off") != "payto":
+        return ""
+    from urllib.parse import quote
+    q = []
+    if amount is not None:
+        q.append(f"amount=EUR:{amount:.2f}")
+    q.append("receiver-name=" + quote(k.cls["account_holder"]))
+    if message:
+        q.append("message=" + quote(message))
+    return f"payto://iban/{k.cls['account_iban'].replace(' ', '').upper()}?" + "&".join(q)
+
+
 def template(k: "Kassa", name: str) -> str:
     """Class override (<class dir>/templates/<name>.txt) wins over the shipped template."""
     own = k.root / "templates" / f"{name}.txt"
     shipped = HERE / "templates" / k.cls.get("language", "et") / f"{name}.txt"
     return (own if own.exists() else shipped).read_text(encoding="utf-8")
+
+
+def _paylink_line(k: "Kassa", amount, message: str) -> str:
+    link = payto_link(k, amount, message)
+    label = "Payment link" if k.cls.get("language") == "en" else "Makselink"
+    return f"{label}: {link}\n" if link else ""
 
 
 def cmd_remind(k: Kassa, args):
@@ -578,6 +615,7 @@ def cmd_remind(k: Kassa, args):
             opening=openings[min(len(log), len(openings) - 1)].format(cls=k.cls["name"], kid_gen=gen),
             lines=lines, total=eur(total), holder=k.cls["account_holder"], iban=k.cls["account_iban"],
             ref=r["ref"], kid_gen=gen,
+            paylink=_paylink_line(k, total, f"{W['subject']} {r['kid_name']}"),
             signature=k.cls.get("signature", k.cls.get("treasurer", "")))
         subject = f"{k.cls['name']} {W['subject']}: {first}"
         out_dir.mkdir(parents=True, exist_ok=True)

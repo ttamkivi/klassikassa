@@ -1,0 +1,12 @@
+Hello everyone,
+
+A quick update: {paid} of {total} families have now paid for "{label}". Thank you to everyone who already has!
+
+If you have not yet, the due date is {due}:
+
+{pay}
+
+If the amount is difficult right now, write to me directly; we will find a way and it stays between us.
+
+Best wishes,
+{signature}

@@ -1,0 +1,12 @@
+Tere!
+
+Vahekokkuvõte: kogumisele "{label}" on praeguseks laekunud {paid} pere makse {total}-st. Suur aitäh kõigile, kes on juba maksnud!
+
+Kel veel tegemata, siis tähtaeg on {due}:
+
+{pay}
+
+Kui summa on praegu ebamugav, kirjutage mulle otse, leiame lahenduse ja see jääb meie vahele.
+
+Tervitades
+{signature}

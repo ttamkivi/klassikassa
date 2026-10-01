@@ -66,8 +66,29 @@ shows what is still outstanding. The report counts the expense once.
 missing and offer to draft private reminders; do not send the organiser the names of
 families who have not paid unless the class has an open table.
 
+**Between collections.** Monthly after a due date: `draft progress` to the list (counts
+only, thanks the payers), `remind` privately to the rest. When the teacher announces an
+event the fund pays for: `draft covered --what <event> --cost <total>`. The day before
+any event with a fee: `status`.
+
+**A parent paid a bill bigger than the balance.** `advance`, then `draft shortfall
+--what <bill> --paid-by <name>` (ask that parent before naming them in a list mail), then
+add the printed `propose` line so the ask is tracked like any collection.
+
+**A family paid twice.** `draft duplicate --kid ID` asks which account to refund. When
+the refund shows on the statement: `refund <txid> <kid>`. Do not send money before they
+answer.
+
+**End of school year.** `draft yearend --gift <amount> --reply-by <date>`. Read what it
+prints to you first: open debts and unreviewed rows must be settled before the
+carry-over is final. Next year's `opening_balance` is the carried amount.
+
 **End of term.** `report --out <file>` for parents; make sure nothing is
 `kategoriseerimata` first. `report --treasurer` is for the treasurer only.
+
+**Payment links.** `payment_links = "payto"` adds a `payto://` link with amount and
+description filled in; a bank-made link goes in a collection's `pay_link`. Either way
+the account details stay in the message.
 
 ## How to write to parents
 

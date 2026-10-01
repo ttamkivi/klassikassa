@@ -1,0 +1,10 @@
+Hello everyone,
+
+{paid_by} paid the {what} bill of {cost} out of pocket for now, thank you! The class account holds {balance}, so we are {short} short. Split over {kids} children that is {per} per child.
+
+{pay}
+
+If the amount is difficult right now, write to me directly; we will find a way and it stays between us.
+
+Thank you!
+{signature}

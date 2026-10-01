@@ -1,0 +1,18 @@
+Tere!
+
+{cls} kooliaasta saab läbi, seega lühike ülevaade klassirahast.
+
+Laekunud: {income}
+Kulutatud: {spent}
+Kontojääk praegu: {balance}
+
+Ettepanek:
+   - õpetajale aasta lõpu kingitus: {gift}
+   - ülejäänud {carry} (umbes {carry_kid} lapse kohta) kanname järgmisse õppeaastasse, nii algab sügisene kogumine väiksemalt.
+
+Kui sobib, pole vaja midagi teha. Kui on teisi ettepanekuid, kirjutage palun {reply_by}.
+
+Täpsem aruanne kulude kaupa on lisatud.
+
+Ilusat suve!
+{signature}

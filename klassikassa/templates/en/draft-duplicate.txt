@@ -1,0 +1,6 @@
+Hello,
+
+I see that {amount} for {kid_gen} has been paid twice. Which account should I send the refund to?
+
+Thank you!
+{signature}

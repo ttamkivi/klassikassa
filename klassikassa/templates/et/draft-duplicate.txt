@@ -1,0 +1,6 @@
+Tere!
+
+Vaatasin, et {kid_gen} eest on {amount} makstud kaks korda. Kummale kontole teen tagasikande?
+
+Aitäh!
+{signature}

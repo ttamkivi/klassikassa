@@ -245,3 +245,64 @@ def test_ingest_file_already_in_statements_is_not_copied(demo, capsys):
     run(demo, "ingest", str(f))
     assert "already in statements/" in capsys.readouterr().out
     assert [p.name for p in (demo / "statements").iterdir()] == ["2026-09-lhv.json"]
+
+
+# ── drafts learned from a second treasurer's mail ────────────────────────────
+
+def _lhv(rows):
+    tx = [{"transactionType": {"domain": "PMNT", "family": "ICDT;RCDT", "subfamily": "OTHR"},
+           "settlementDtime": f"{d}T10:00:00Z", "bankReference": 900000 + i, "customerReference": None,
+           "description": desc, "direction": dirn,
+           "paymentData": {"debtor": {"name": who, "accountNo": "EE001"}, "creditor": {"name": who, "accountNo": "EE002"}},
+           "amount": amt, "currency": "EUR"} for i, (d, dirn, amt, who, desc) in enumerate(rows)]
+    return {"statement": {"iban": "EE000000000000000000", "transactions": tx}}
+
+
+def test_refund_lowers_what_the_family_paid(demo):
+    (demo / "statements" / "extra.json").write_text(json.dumps(_lhv([
+        ("2026-09-20", "CREDIT", 40.00, "Tõnu Kask", "Mari Kask klassiraha"),
+        ("2026-09-22", "DEBIT", 40.00, "Tõnu Kask", "tagasikanne topeltmakse")])), encoding="utf-8")
+    k = kassa(demo)
+    before = k.paid(k.db(), "01")
+    out = next(t["txid"] for t in k.txs.values() if t["description"] == "tagasikanne topeltmakse")
+    run(demo, "refund", out, "01")
+    k = kassa(demo)
+    assert k.paid(k.db(), "01") == before - Decimal("40.00")
+    assert not any(t.get("uncategorised") for t in k.txs.values() if t["txid"] == out)
+
+
+def test_shortfall_rounds_up_to_the_cent():
+    # the real case: 501.57 short over 32 children was asked as 15.68, not 15.67
+    assert collect.per_child_ceil(Decimal("501.57"), 32) == Decimal("15.68")
+    assert collect.per_child_ceil(Decimal("64.00"), 32) == Decimal("2.00")
+
+
+def test_progress_draft_counts_and_never_names(demo, capsys):
+    run(demo, "draft", "progress", today="2026-10-20")
+    out = capsys.readouterr().out
+    assert "pere makse" in out
+    for kid in kassa(demo).kids.values():
+        assert kid["kid_name"] not in out
+
+
+def test_payto_links_only_when_enabled(demo, capsys):
+    run(demo, "remind", "--force", today="2026-10-30")
+    assert "payto://" not in capsys.readouterr().out
+    cfg = demo / "config.toml"
+    cfg.write_text(cfg.read_text(encoding="utf-8").replace(
+        'language = "et"', 'language = "et"\npayment_links = "payto"', 1), encoding="utf-8")
+    k = kassa(demo)
+    link = core.payto_link(k, Decimal("15.5"), "klassiraha Mari Kask")
+    assert link == ("payto://iban/EE000000000000000000?amount=EUR:15.50"
+                    "&receiver-name=Kati%20P%C3%A4rn&message=klassiraha%20Mari%20Kask")
+    for f in (demo / "drafts").rglob("*.txt"):
+        f.unlink()
+    run(demo, "remind", "--force", today="2026-10-30")
+    drafts = [p.read_text(encoding="utf-8") for p in (demo / "drafts").rglob("*.txt")]
+    assert drafts and all("Makselink: payto://" in d for d in drafts if "Viitenumber" in d)
+
+
+def test_yearend_warns_treasurer_about_open_debts(demo, capsys):
+    run(demo, "draft", "yearend", "--gift", "40", today="2026-11-30")
+    out = capsys.readouterr().out
+    assert "Ettepanek" in out and "still owe" in out

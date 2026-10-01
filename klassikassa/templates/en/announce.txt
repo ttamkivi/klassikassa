@@ -10,7 +10,7 @@ The class account currently holds {balance}.
 Recipient: {holder}
 Account: {iban}
 Reference text: {purpose}, child's name
-
+{paylink}
 Paying in instalments is fine. If the amount is difficult right now, write to me directly and we will find a way; it stays between us.
 
 Best wishes,

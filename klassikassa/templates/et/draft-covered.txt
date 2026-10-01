@@ -1,0 +1,8 @@
+Tere!
+
+Annan märku, et {what} kulud katame klassirahast. Eraldi raha selleks koguma ei hakka ja ülekannet teha pole vaja.
+
+Klassikonto jääk on praegu {balance}.
+
+Tervitades
+{signature}

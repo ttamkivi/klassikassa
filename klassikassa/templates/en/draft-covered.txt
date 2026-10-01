@@ -1,0 +1,8 @@
+Hello everyone,
+
+Just so you know: the class fund covers {what}. There is nothing extra to pay and no need for a separate transfer.
+
+The class account currently holds {balance}.
+
+Best wishes,
+{signature}

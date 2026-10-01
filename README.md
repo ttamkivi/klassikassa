@@ -60,7 +60,9 @@ Kui kontol on juba mitme aasta ajalugu, oskab tööriist sellest laste ja maksja
 nimekirja ette pakkuda (`infer-roster`). Tulemus on ettepanek, mitte nimekiri; iga seos
 kinnitab inimene.
 
-Töö jaotus laekuri ja abi vahel: [docs/ROLES.md](docs/ROLES.md). AI-assistendiga
+Töö jaotus laekuri ja abi vahel: [docs/ROLES.md](docs/ROLES.md). Kuidas kogenud laekur
+kooliaasta läbi teeb (vahekokkuvõtted, aasta lõpp, topeltmaksed, makselingid):
+[docs/PRACTICE.md](docs/PRACTICE.md). AI-assistendiga
 kasutamiseks: [AGENT.md](AGENT.md).
 
 ## Privaatsus lühidalt
@@ -73,7 +75,8 @@ lähe kunagi giti, pilve ega vanemate gruppi.** Täpsemalt: [docs/PRIVACY.md](do
 `klassikassa` keeps a class fund's books from bank statements (camt.053 XML, CSV, XLSX,
 LHV MCP JSON), matches payments to children by reference number or name, proposes
 per-child collection amounts from real costs, drafts announcement and reminder emails
-(never sends them), tracks money parents paid out of pocket, and writes a report for
+(never sends them), drafts progress updates, year-end proposals and shortfall asks,
+adds optional one-tap `payto://` payment links, tracks money parents paid out of pocket, and writes a report for
 parents that shows totals, not debtors. Data stays in a local folder per class. Messages
 default to Estonian; set `language = "en"` in `config.toml` for English templates.
 MIT licence.

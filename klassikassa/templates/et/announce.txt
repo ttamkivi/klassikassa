@@ -10,7 +10,7 @@ Konto jääk on praegu {balance}.
 Makse saaja: {holder}
 Konto: {iban}
 Selgitus: {purpose}, lapse nimi
-
+{paylink}
 Võib maksta ka mitmes osas. Kui summa on praegu ebamugav, kirjutage mulle otse, leiame lahenduse ja see jääb meie vahele.
 
 Tervitades

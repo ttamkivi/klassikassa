@@ -16,7 +16,7 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
-from .core import D, Kassa, append_csv, eur, fold, read_csv, today
+from .core import D, Kassa, append_csv, eur, fold, payto_link, read_csv, today
 
 ADV_FIELDS = ["date", "who", "amount", "activity", "note"]
 
@@ -90,6 +90,19 @@ def bank_balance(k: Kassa) -> Decimal:
     return D(Decimal(c) / 100) + D(k.cls.get("opening_balance", 0))
 
 
+def _paylink_group(k: Kassa, c: dict) -> str:
+    """A link for the whole list: amount filled in, the child's name left for the parent.
+    A bank-made link in the collection's pay_link (e.g. Swedbank) wins over payto://."""
+    from .core import WORDS
+    W = WORDS.get(k.cls.get("language", "et"), WORDS["et"])
+    link = c.get("pay_link") or payto_link(k, D(c["amount"]), c.get("purpose", c["label"]))
+    if not link:
+        return ""
+    if k.cls.get("language") == "en":
+        return f"Payment link: {link}\n(add your child's name to the reference text)\n"
+    return f"Makselink: {link}\n(lisa selgitusse lapse nimi)\n"
+
+
 def cmd_announce(k: Kassa, args):
     c = next((c for c in k.collections if c["id"] == args.id), None)
     if not c:
@@ -100,7 +113,9 @@ def cmd_announce(k: Kassa, args):
         cls=k.cls["name"], label=c["label"], lines=lines, amount=eur(D(c["amount"])),
         due=dt.date.fromisoformat(c["due"]).strftime("%d.%m.%Y"),
         balance=eur(bank_balance(k)), holder=k.cls["account_holder"], iban=k.cls["account_iban"],
-        purpose=c.get("purpose", c["label"]), signature=k.cls.get("signature", k.cls.get("treasurer", "")))
+        purpose=c.get("purpose", c["label"]),
+        paylink=_paylink_group(k, c),
+        signature=k.cls.get("signature", k.cls.get("treasurer", "")))
     to = k.cls.get("parents_list", "")
     out = k.root / "drafts" / today(args).isoformat()
     out.mkdir(parents=True, exist_ok=True)
@@ -195,3 +210,127 @@ def cmd_check_list(k: Kassa, args):
         missing += not ok
         print(f"  {'✓' if ok else '✗'}  {n:<28} {eur(paid):>10}  " + ", ".join(r[0] for r in rows))
     print(f"\n{missing} not (fully) paid." + (" Reminders go to those families only, never the whole list." if missing else ""))
+
+
+# ── draft: the other messages a treasurer sends ──────────────────────────────
+# Learned from nine years of a second treasurer's mail to his class list (first grade
+# to ninth): besides "please pay" and "you have not paid yet", the same five
+# messages came back every year. Each one here gets its numbers from the ledger.
+
+DRAFTS = ("progress", "covered", "yearend", "shortfall", "duplicate")
+
+
+def _collection(k: Kassa, cid: str | None) -> dict:
+    cs = k.collections
+    if not cs:
+        sys.exit("No collection in config.toml.")
+    c = next((c for c in cs if c["id"] == cid), None) if cid else max(cs, key=lambda c: c["due"])
+    if not c:
+        sys.exit(f"No collection {cid} in config.toml.")
+    return c
+
+
+def _paylines(k: Kassa, amount: Decimal | None, purpose: str, link: str = "",
+              link_msg: str | None = None) -> str:
+    L = [f"Makse saaja: {k.cls['account_holder']}", f"Konto: {k.cls['account_iban']}"]
+    if k.cls.get("language", "et") == "en":
+        L = [f"Recipient: {k.cls['account_holder']}", f"Account: {k.cls['account_iban']}"]
+    if amount is not None:
+        L.append(("Amount: " if k.cls.get("language") == "en" else "Summa: ") + eur(amount))
+    L.append(("Reference text: " if k.cls.get("language") == "en" else "Selgitus: ") + purpose)
+    link = link or payto_link(k, amount, purpose if link_msg is None else link_msg)
+    if link:
+        L.append(("Payment link: " if k.cls.get("language") == "en" else "Makselink: ") + link)
+        if link_msg is not None:  # a mail to the whole list: the link cannot know the child
+            L.append("(add your child's name to the reference text)" if k.cls.get("language") == "en"
+                     else "(lisa selgitusse lapse nimi)")
+    return "\n".join(L)
+
+
+def per_child_ceil(amount: Decimal, n: int) -> Decimal:
+    """Split a sum over n children, rounded UP to the cent so the class is never short."""
+    return D(Decimal(math.ceil(amount * 100 / n)) / 100)
+
+
+def cmd_draft(k: Kassa, args):
+    con, as_of = k.db(), today(args)
+    sig = k.cls.get("signature", k.cls.get("treasurer", ""))
+    bal = bank_balance(k)
+    n = len(k.kids)
+    to = k.cls.get("parents_list", "")
+    f: dict = {"cls": k.cls["name"], "balance": eur(bal), "signature": sig, "kids": n}
+    note = []  # for the treasurer only, never in the draft
+
+    if args.kind == "progress":
+        # counts, never names: who has not paid hears it privately (remind)
+        c = _collection(k, args.id)
+        rows = [r for kid in k.kids for r in k.family_status(con, kid, as_of)["rows"]
+                if r["collection"]["id"] == c["id"]]
+        full = sum(1 for r in rows if r["got"] == r["amount"])
+        f |= {"label": c["label"], "paid": full, "total": len(rows),
+              "due": dt.date.fromisoformat(c["due"]).strftime("%d.%m.%Y"),
+              "pay": _paylines(k, D(c["amount"]), c.get("purpose", c["label"]) + ", lapse nimi"
+                               if k.cls.get("language", "et") == "et" else c.get("purpose", c["label"]) + ", child's name",
+                               c.get("pay_link", ""), link_msg=c.get("purpose", c["label"]))}
+        subject = f"{k.cls['name']}: {c['label']}"
+    elif args.kind == "covered":
+        if not args.what:
+            sys.exit("draft covered needs --what (the event the fund pays for)")
+        if args.cost and D(args.cost) > bal:
+            note.append(f"⚠ {args.what} costs {eur(D(args.cost))} but the account holds {eur(bal)}. "
+                        "Do not send this; use propose / announce instead.")
+        f |= {"what": args.what}
+        subject = f"{k.cls['name']}: {args.what}"
+    elif args.kind == "yearend":
+        inc = D(Decimal(con.execute("select coalesce(sum(cents),0) from tx where cents>0 and state!='ignored'").fetchone()[0]) / 100)
+        spent = D(Decimal(-con.execute("select coalesce(sum(cents),0) from tx where cents<0 and state!='ignored'").fetchone()[0]) / 100)
+        gift = D(args.gift) if args.gift else Decimal(0)
+        carry = bal - gift
+        late = [kid for kid in k.kids if k.family_status(con, kid, as_of)["due_now"] > 0]
+        if late:
+            note.append(f"⚠ {len(late)} families still owe for past collections. Settle them before "
+                        "the summer: the carry-over in this draft assumes nothing more arrives. (status, remind)")
+        n_unc = con.execute("select count(*) from tx where state in ('unmatched','uncategorised')").fetchone()[0]
+        if n_unc:
+            note.append(f"⚠ {n_unc} rows still need review; the figures below are not final.")
+        f |= {"income": eur(inc), "spent": eur(spent), "gift": eur(gift), "carry": eur(carry),
+              "carry_kid": eur(D(carry / n)) if n else "", "reply_by": args.reply_by or "[kuupäev]"}
+        subject = f"{k.cls['name']}: {'school year end' if k.cls.get('language') == 'en' else 'klassirahad ja kooliaasta lõpp'}"
+    elif args.kind == "shortfall":
+        cost = D(args.cost) if args.cost else sum((owed_to(k, w) for w in {a["who"] for a in advances(k)}), Decimal(0))
+        if not cost:
+            sys.exit("draft shortfall needs --cost, or an advance recorded with `advance`.")
+        short = cost - bal
+        if short <= 0:
+            sys.exit(f"The account ({eur(bal)}) covers {eur(cost)}; no collection needed.")
+        per = per_child_ceil(short, n)
+        what = args.what or "[mille eest]"
+        f |= {"what": what, "cost": eur(cost), "short": eur(short), "per": eur(per),
+              "paid_by": args.paid_by or "[kes maksis]",
+              "pay": _paylines(k, per, f"{k.cls['name']} {what}", args.link or "")}
+        note.append(f"To track it: propose --item '{what}={per}/laps' --round 0 --id <id> --due <date> --add")
+        subject = f"{k.cls['name']}: {what}"
+    elif args.kind == "duplicate":
+        if args.kid not in k.kids:
+            sys.exit("draft duplicate needs --kid ID")
+        s = k.family_status(con, args.kid, as_of)
+        if s["credit"] <= 0 and not args.amount:
+            sys.exit(f"{k.kids[args.kid]['kid_name']} has no overpayment on the ledger; pass --amount if you know better.")
+        r = k.kids[args.kid]
+        f |= {"amount": eur(D(args.amount) if args.amount else s["credit"]),
+              "kid_gen": r.get("kid_genitive") or r["kid_name"].split()[0]}
+        to = ", ".join(e for e in (r.get("parent1_email"), r.get("parent2_email")) if e)
+        note.append("After the refund appears on the statement: refund <txid> " + args.kid)
+        subject = f"{k.cls['name']}: {'double payment' if k.cls.get('language') == 'en' else 'topeltmakse'}"
+    else:
+        sys.exit(f"kind must be one of {', '.join(DRAFTS)}")
+
+    body = _template(k, f"draft-{args.kind}").format(**f)
+    out = k.root / "drafts" / as_of.isoformat()
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / f"{args.kind}.txt"
+    path.write_text(f"To: {to}\nSubject: {subject}\n\n{body}", encoding="utf-8")
+    print(path.read_text(encoding="utf-8"))
+    for line in note:
+        print(line)
+    print(f"\nDraft saved to {path}. Nothing was sent.")

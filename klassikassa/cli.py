@@ -27,6 +27,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("files", nargs="+")
     a("review", help="payments and spends that need a human")
     s = a("assign", help="payment -> child"); s.add_argument("txid"); s.add_argument("kid"); s.add_argument("--note")
+    s = a("refund", help="bank transfer returning money to a family (double payment)")
+    s.add_argument("txid"); s.add_argument("kid"); s.add_argument("--note")
     s = a("split", help="one payment for siblings: split TXID 03=30 04=30")
     s.add_argument("txid"); s.add_argument("parts", nargs="+"); s.add_argument("--note")
     s = a("income", help="money in that is no family's: fair, refund, leftover")
@@ -51,6 +53,16 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--id", default="kogumine"); s.add_argument("--label", default="Klassiraha"); s.add_argument("--due", default="")
     s.add_argument("--add", action="store_true", help="append the collection to config.toml")
     s = a("announce", help="draft the collection mail to the parents' list"); s.add_argument("id")
+    s = a("draft", help="other mails: progress, covered, yearend, shortfall, duplicate")
+    s.add_argument("kind", choices=collect.DRAFTS)
+    s.add_argument("--id", help="collection (progress; default the latest)")
+    s.add_argument("--what", help="the event or expense (covered, shortfall)")
+    s.add_argument("--cost", help="what it costs (covered: a check; shortfall: default the advances owed)")
+    s.add_argument("--paid-by", help="who paid it out of pocket (shortfall)")
+    s.add_argument("--link", help="bank payment link (shortfall)")
+    s.add_argument("--gift", help="amount proposed for the teacher's gift (yearend)")
+    s.add_argument("--reply-by", help="date for objections (yearend)")
+    s.add_argument("--kid", help="kid id (duplicate)"); s.add_argument("--amount", help="amount paid twice (duplicate)")
 
     # who paid
     a("status", help="each family, what is paid and overdue, balance")
@@ -73,6 +85,7 @@ COMMANDS = {
     "income": core.cmd_income, "spend": core.cmd_spend, "ignore": core.cmd_ignore, "cash": core.cmd_cash,
     "advance": collect.cmd_advance, "reimburse": collect.cmd_reimburse, "owed": collect.cmd_owed,
     "propose": collect.cmd_propose, "announce": collect.cmd_announce,
+    "draft": collect.cmd_draft, "refund": core.cmd_refund,
     "status": core.cmd_status, "balance": core.cmd_balance, "table": collect.cmd_table,
     "check-list": collect.cmd_check_list, "remind": core.cmd_remind,
     "mark-reminded": core.cmd_mark_reminded, "report": core.cmd_report,

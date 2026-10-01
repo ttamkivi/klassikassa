@@ -1,0 +1,18 @@
+Hello everyone,
+
+The {cls} school year is ending, so here is a short summary of the class fund.
+
+Collected: {income}
+Spent: {spent}
+Balance now: {balance}
+
+Proposal:
+   - an end-of-year gift for the teacher: {gift}
+   - carry the remaining {carry} (about {carry_kid} per child) into next school year, so the autumn collection can be smaller.
+
+If that works for you, there is nothing to do. If you would like something else, please write by {reply_by}.
+
+The detailed report by activity is attached.
+
+Have a lovely summer!
+{signature}
